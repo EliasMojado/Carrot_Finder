@@ -19,9 +19,11 @@ class Grid {
         const grassVariants = assetLoader.getTileVariants('normalGrass');
         const waterVariants = assetLoader.getTileVariants('waterTiles');
         const tilledDirtVariants = assetLoader.getTileVariants('tilledDirtTiles');
+        const plantVariants = assetLoader.getTileVariants('plants');
         const grassVariantCount = grassVariants.length || 1;
         const waterVariantCount = waterVariants.length || 1;
         const tilledDirtVariantCount = tilledDirtVariants.length || 1;
+        const plantVariantCount = plantVariants.length || 1;
         
         for (let i = 0; i < this.rows; i++) {
             this.cells[i] = [];
@@ -31,12 +33,16 @@ class Grid {
                     tileVariant: Math.floor(Math.random() * grassVariantCount),
                     waterVariant: Math.floor(Math.random() * waterVariantCount),
                     tilledDirtVariant: Math.floor(Math.random() * tilledDirtVariantCount),
+                    plantVariant: Math.floor(Math.random() * plantVariantCount),
+                    weight: 1,
                     row: i,
                     col: j,
                     f: 0, // For A* algorithm
                     g: 0, // For A* algorithm
                     h: 0, // For A* algorithm
                     parent: null, // For pathfinding
+                    visited: false,
+                    inPath: false
                 };
             }
         }
@@ -99,26 +105,26 @@ class Grid {
         this.onBunnyPositionReset = callback;
     }
 
-    // Clear the path cells
+    // Clear the path cells - FIXED to preserve plants!
     resetPath() {
-        // Reset any cells marked as path or visited
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.cols; j++) {
                 const cell = this.cells[i][j];
-                if (cell.type === CELL_TYPES.PATH || 
-                    cell.type === CELL_TYPES.VISITED || 
+                cell.visited = false; // Clear visited flag
+                cell.inPath  = false;
+                cell.f = cell.g = cell.h = 0;
+                cell.parent = null;
+                
+                // Only reset specific pathfinding-related cell types back to empty
+                // This preserves plants, obstacles, start, and end cells!
+                if (cell.type === CELL_TYPES.VISITED || 
+                    cell.type === CELL_TYPES.PATH || 
                     cell.type === CELL_TYPES.TILLED_DIRT) {
                     cell.type = CELL_TYPES.EMPTY;
                 }
-                // Reset pathfinding properties
-                cell.f = 0;
-                cell.g = 0;
-                cell.h = 0;
-                cell.parent = null;
             }
         }
-        
-        this.pathCells = []; // Clear path cells array
+        this.pathCells = [];
     }
 
     clear() {
@@ -257,6 +263,24 @@ class Grid {
                 cell.type = CELL_TYPES.OBSTACLE;
             } else if (cell.type === CELL_TYPES.OBSTACLE) {
                 cell.type = CELL_TYPES.EMPTY;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    // Toggle plant object on a cell
+    toggleCellPlant(row, col) {
+        const cell = this.getCell(row, col);
+        if (cell) {
+            if (cell.type === CELL_TYPES.EMPTY) {
+                cell.type = CELL_TYPES.PLANT;
+                cell.weight = 3;  // moving through plant is 3× slower
+            } else if (cell.type === CELL_TYPES.PLANT) {
+                cell.type = CELL_TYPES.EMPTY;
+                cell.weight = 1;  // reset to default
+            } else {
+                return false;
             }
             return true;
         }

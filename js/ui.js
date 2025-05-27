@@ -55,6 +55,7 @@ class UI {
         const obstacleToolBtn = document.getElementById('obstacle-tool');
         const startToolBtn = document.getElementById('start-tool');
         const endToolBtn = document.getElementById('end-tool');
+        const plantToolBtn = document.getElementById('plant-tool');
         
         if (obstacleToolBtn) {
             obstacleToolBtn.addEventListener('click', () => {
@@ -73,6 +74,13 @@ class UI {
         if (endToolBtn) {
             endToolBtn.addEventListener('click', () => {
                 this.currentTool = 'end';
+                this.updateToolUI();
+            });
+        }
+
+        if (plantToolBtn) {
+            plantToolBtn.addEventListener('click', () => {
+                this.currentTool = 'plant';
                 this.updateToolUI();
             });
         }
@@ -174,7 +182,8 @@ class UI {
     toggleControlsEnabled(enabled) {
         const controls = [
             'reset-btn', 'resize-btn', 'rows-input', 'cols-input',
-            'obstacle-tool', 'start-tool', 'end-tool', 'algorithm-select'
+            'obstacle-tool', 'start-tool', 'end-tool', 'plant-tool',
+            'algorithm-select'
         ];
         
         controls.forEach(id => {
@@ -210,7 +219,8 @@ class UI {
         const toolButtons = {
             'obstacle': document.getElementById('obstacle-tool'),
             'start': document.getElementById('start-tool'),
-            'end': document.getElementById('end-tool')
+            'end': document.getElementById('end-tool'),
+            'plant': document.getElementById('plant-tool')
         };
         
         // Remove active class from all tools
@@ -251,6 +261,9 @@ class UI {
                 break;
             case 'end':
                 this.grid.setCellType(row, col, CELL_TYPES.END);
+                break;
+            case 'plant':
+                this.grid.toggleCellPlant(row, col);
                 break;
         }
         

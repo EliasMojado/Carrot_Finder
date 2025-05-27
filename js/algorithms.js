@@ -9,6 +9,7 @@ class PathfindingAlgorithm {
         this.delay = delay; // Delay between steps (ms)
         this.isRunning = false;
         this.shouldStop = false;
+        this.plantWeight = 8;
     }
 
     // Stop algorithm execution
@@ -116,9 +117,9 @@ class PathfindingAlgorithm {
             // Add to closed set
             closedSet.add(current);
             
-            // Mark as visited for visualization
+            // Mark as visited for visualization - USE visited PROPERTY instead of changing type
             if (current !== this.grid.startCell && current !== this.grid.endCell) {
-                current.type = CELL_TYPES.VISITED;
+                current.visited = true; // ← Use visited property instead!
                 await this.delayExecution(this.delay);
                 this.onNodeVisited(current);
             }
@@ -129,8 +130,8 @@ class PathfindingAlgorithm {
             for (const neighbor of neighbors) {
                 if (closedSet.has(neighbor)) continue;
                 
-                // Distance from start to neighbor through current
-                const tentativeG = current.g + 1;
+                const moveCost = neighbor.type === CELL_TYPES.PLANT ? this.plantWeight : 1;  // plant weight
+                const tentativeG = current.g + moveCost;
                 
                 // Check if new path to neighbor is shorter or neighbor is not in open set
                 if (tentativeG < neighbor.g || !openSet.includes(neighbor)) {
@@ -198,9 +199,9 @@ class PathfindingAlgorithm {
             // Add to closed set
             closedSet.add(current);
             
-            // Mark as visited for visualization
+            // Mark as visited for visualization - USE visited PROPERTY instead of changing type
             if (current !== this.grid.startCell && current !== this.grid.endCell) {
-                current.type = CELL_TYPES.VISITED;
+                current.visited = true; // ← Use visited property instead!
                 await this.delayExecution(this.delay);
                 this.onNodeVisited(current);
             }
@@ -211,8 +212,8 @@ class PathfindingAlgorithm {
             for (const neighbor of neighbors) {
                 if (closedSet.has(neighbor)) continue;
                 
-                // Distance from start to neighbor through current
-                const tentativeG = current.g + 1;
+                const moveCost = neighbor.type === CELL_TYPES.PLANT ? this.plantWeight : 1;  // plant weight
+                const tentativeG = current.g + moveCost;
                 
                 // Check if new path to neighbor is shorter or neighbor is not in open set
                 if (tentativeG < neighbor.g || !openSet.includes(neighbor)) {

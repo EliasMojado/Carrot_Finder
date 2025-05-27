@@ -63,20 +63,26 @@ class GridRenderer {
         const grassVariants = assetLoader.getTileVariants('normalGrass');
         const waterVariants = assetLoader.getTileVariants('waterTiles');
         const tilledDirtVariants = assetLoader.getTileVariants('tilledDirtTiles');
+        const plantVariants = assetLoader.getTileVariants('plants');
 
         const grassTileset = assetLoader.getAsset('grassTileset');
         const waterTileset = assetLoader.getAsset('waterTileset');
         const tilledDirtTileset = assetLoader.getAsset('tilledDirtTileset');
+        const plantsTileset = assetLoader.getAsset('plantsTileset');
 
-        const grassTilesAvailable = grassVariants && grassVariants.length > 0 && grassTileset;
-        const waterTilesAvailable = waterVariants && waterVariants.length > 0 && waterTileset;
-        const tilledDirtTilesAvailable = tilledDirtVariants && tilledDirtVariants.length > 0 && tilledDirtTileset;
+        const grassTilesAvailable = grassVariants.length > 0 && grassTileset;
+        const waterTilesAvailable = waterVariants.length > 0 && waterTileset;
+        const tilledDirtTilesAvailable = tilledDirtVariants.length > 0 && tilledDirtTileset;
+        const plantAvailable = plantVariants.length > 0 && plantsTileset;
 
-        if ((!grassTilesAvailable && grassTileset) || 
-        (!waterTilesAvailable && waterTileset) ||
-        (!tilledDirtTilesAvailable && tilledDirtTileset)) {
+        if (
+            (!grassTilesAvailable && grassTileset) ||
+            (!waterTilesAvailable && waterTileset) ||
+            (!tilledDirtTilesAvailable && tilledDirtTileset) ||
+            (plantVariants.length > 0 && !plantAvailable)
+        ) {
             console.log('Some tiles not processed yet, waiting...');
-            setTimeout(() => this.drawGrid(), 100); // Try again in 100ms
+            setTimeout(() => this.drawGrid(), 100);
             return;
         }
 
@@ -123,33 +129,29 @@ class GridRenderer {
                     console.error(`Error drawing cell at (${i}, ${j}):`, error);
                 }
                 
-                
-                // Draw cell state overlay
-                // if (cell.type !== CELL_TYPES.EMPTY && cell.type !== CELL_TYPES.OBSTACLE) {
-                //     this.ctx.fillStyle = CELL_COLORS[cell.type];
-                    
-                //     // Set transparency based on cell type
-                //     if (cell.type === CELL_TYPES.VISITED) {
-                //         this.ctx.globalAlpha = TRANSPARENCY.VISITED;
-                //     } else if (cell.type === CELL_TYPES.PATH) {
-                //         this.ctx.globalAlpha = TRANSPARENCY.PATH;
-                //     } else if (cell.type === CELL_TYPES.START || cell.type === CELL_TYPES.END) {
-                //         this.ctx.globalAlpha = 0;
-                //     } else {
-                //         this.ctx.globalAlpha = TRANSPARENCY.START_END;
-                //     }
-                    
-                //     this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
-                //     this.ctx.globalAlpha = 1.0;
-                // }
-                
-                // // Draw cell border
-                // this.ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-                // this.ctx.strokeRect(x, y, this.cellSize, this.cellSize);
+                // Draw plant sprite above grass - PLANTS ARE PRESERVED!
+                if (cell.type === CELL_TYPES.PLANT && plantAvailable) {
+                    const variantIndex = cell.plantVariant % plantVariants.length;
+                    const variant = plantVariants[variantIndex];
+                    this.ctx.drawImage(
+                        plantsTileset,
+                        variant.x, variant.y, 16, 16,
+                        x, y, this.cellSize, this.cellSize
+                    );
+                }
 
+                // Show path indication for non-plant cells
                 if (cell.type === CELL_TYPES.PATH) {
                     this.ctx.fillStyle = CELL_COLORS[CELL_TYPES.PATH];
                     this.ctx.globalAlpha = TRANSPARENCY.PATH;
+                    this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
+                    this.ctx.globalAlpha = 1.0;
+                }
+
+                // Show path indication for plants on the path with a subtle overlay
+                if (cell.isOnPath && cell.type === CELL_TYPES.PLANT) {
+                    this.ctx.fillStyle = CELL_COLORS[CELL_TYPES.PATH];
+                    this.ctx.globalAlpha = 0.2; // More subtle for plants
                     this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
                     this.ctx.globalAlpha = 1.0;
                 }
@@ -161,10 +163,12 @@ class GridRenderer {
             }
         }
 
+        // Draw visited cell borders - now check the visited PROPERTY instead of cell type
         for (let i = 0; i < this.grid.rows; i++) {
             for (let j = 0; j < this.grid.cols; j++) {
                 const cell = this.grid.getCell(i, j);
-                if (cell.type === CELL_TYPES.VISITED) {
+                // ↓ Check visited property instead of cell type!
+                if (cell.visited && cell.type !== CELL_TYPES.START && cell.type !== CELL_TYPES.END) {
                     const x = this.offsetX + j * this.cellSize;
                     const y = this.offsetY + i * this.cellSize;
                     

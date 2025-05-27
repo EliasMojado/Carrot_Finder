@@ -10,7 +10,8 @@ export const CELL_TYPES = {
     END: 3,
     PATH: 4,
     VISITED: 5,
-    TILLED_DIRT: 6
+    TILLED_DIRT: 6,
+    PLANT: 7
 };
 
 // Cell colors for different cell types
@@ -32,6 +33,7 @@ export const ASSETS = {
     BUNNY_SPRITE: 'assets/Bunny.png',
     CHEST_SPRITE: 'assets/Chest.png',
     CARROT: 'assets/Carrot.png',
+    PLANTS_TILESET: 'assets/plants.png',
     TILE_SIZE: 16
 };
 

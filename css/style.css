@@ -77,7 +77,6 @@ body {
 }
 
 .grid-controls, .tool-controls, .algorithm-controls {
-    margin-bottom: 1rem;
     padding: 15px;
     border-radius: 5px;
     border: 2px solid var(--border-color);
@@ -98,18 +97,23 @@ body {
 /* Form elements */
 .form-group {
     margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    /* both ends */
+    justify-content: space-between;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 0.3rem;
-    font-size: 0.9rem;
+    font-size: 0.8em;
     color: var(--text-color);
+    display: block;
 }
 
 /* Style the number inputs - FIX THE TEXT COLOR */
 input[type="number"] {
     width: 100%;
+    width: 5rem;
     padding: 0.5rem;
     border: 3px solid var(--input-border);
     background-color: var(--input-bg);
@@ -178,7 +182,7 @@ button:active {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 8px;
+    /* margin-bottom: 8px; */
     padding: 0.7rem;
     background-color: var(--tool-button-bg);  /* Changed from #34495e to var */
     color: var(--button-text-color);
@@ -222,6 +226,11 @@ button:active {
 .end-icon {
     background-image: url('../assets/Carrot.png');
     background-color: transparent; /* Remove the background color */
+}
+
+.plant-icon {
+    background-image: url('../assets/bush.png');
+    background-color: transparent;
 }
 
 /* Algorithm section */
@@ -284,12 +293,4 @@ button:active {
     .main-content {
         width: 100%;
     }
-}
-
-/* Explicitly set label text color to black */
-label {
-    color: #000000;
-    font-size: 0.8em;
-    display: block;
-    margin-bottom: 4px;
 }

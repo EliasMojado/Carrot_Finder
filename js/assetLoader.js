@@ -103,7 +103,8 @@ export function initAssets() {
             'bunnySprite': ASSETS.BUNNY_SPRITE,
             'chestSprite': ASSETS.CHEST_SPRITE,
             'tilledDirtTileset': ASSETS.TILLED_DIRT_TILESET,
-            'carrot': ASSETS.CARROT
+            'carrot': ASSETS.CARROT,
+            'plantsTileset': ASSETS.PLANTS_TILESET
         })
         .then(() => {
             // Process the grass tileset
@@ -180,6 +181,17 @@ export function initAssets() {
                     startCol: 0, 
                     endCol: 4, 
                     name: 'chestOpening' 
+                }
+            ]);
+        })
+        .then(() => {
+            return assetLoader.processTileset('plantsTileset', ASSETS.TILE_SIZE, [
+                {
+                    startRow: 3,
+                    endRow: 3,
+                    startCol: 0,
+                    endCol: 1,
+                    name: 'plants'
                 }
             ]);
         })
